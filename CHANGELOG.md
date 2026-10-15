@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-15
+
 ### Added
 
 - One Gladys device per Elgato light (Key Light, Key Light Air, Key Light
@@ -30,4 +32,5 @@ the notes of the version's GitHub Release.
 - Texts and documentation in English, French, German and Spanish.
 - `scripts/probe.mjs`: a read-only check of a real light, safe to share.
 
-[Unreleased]: https://github.com/guim31/gladys-elgato/commits/main
+[Unreleased]: https://github.com/guim31/gladys-elgato/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/guim31/gladys-elgato/releases/tag/v1.0.1

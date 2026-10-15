@@ -8,8 +8,8 @@
     "de": "Elgato Key Light, Ring Light und Light Strip im lokalen Netzwerk: Helligkeit, Weiß, Farbe.",
     "es": "Key Light, Ring Light y Light Strip de Elgato en la red local: brillo, blanco, color."
   },
-  "version": "1.0.0",
-  "docker_image": "ghcr.io/guim31/gladys-elgato:1.0.0",
+  "version": "1.0.1",
+  "docker_image": "ghcr.io/guim31/gladys-elgato:1.0.1",
   "gladys_version": ">=5.1.0",
   "cover_image": "https://raw.githubusercontent.com/guim31/gladys-elgato/main/cover.png",
   "categories": ["lighting"],

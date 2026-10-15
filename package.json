@@ -1,6 +1,6 @@
 {
   "name": "gladys-elgato",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Elgato lights (Key Light, Ring Light, Light Strip) for Gladys Assistant, over the local network.",
   "type": "module",
