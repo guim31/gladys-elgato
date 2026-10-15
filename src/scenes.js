@@ -1,41 +1,59 @@
 // -----------------------------------------------------------------------------
-// Scene actions (SDK v0.14+, Gladys 5.1+).
+// Scene action handlers (manifest `scene_actions`, Gladys 5.1+).
 //
-// A scene action is an OPERATION a scene author places in a scene, with
-// parameters and a result: "identify this device", "take a snapshot", "clean
-// these rooms". Each one is declared in the manifest `scene_actions` field
-// (key, label, `fields` in the config_schema grammar, scalar `outputs`) and
-// handled here, keyed by that same `key`; index.js registers every entry with
-// `gladys.onSceneAction(key, ...)`.
-//
-// Scene TRIGGERS are the other direction ("this happened"): they are fired by
-// the device that observes the event, see src/devices/motionSensor.js.
-//
-// The rules that matter:
-//   - `fields` arrive RESOLVED: scene variables substituted, defaults applied,
-//     validated by the core; a `"source": "devices"` field is the chosen
-//     device external_id;
-//   - resolve an object of the declared `outputs` (scalars only), readable by
-//     the following actions of the scene, or `undefined` for none. Keys not
-//     declared in the manifest are dropped by the core;
-//   - throwing fails THIS action only: the scene logs it and continues. A
-//     scene action is never a condition: return an output and let the scene
-//     author gate on it;
-//   - never fire a scene event as a consequence of a received action: a scene
-//     bound to that event would loop through the integration.
+// On, off, brightness and temperature are already Gladys scene actions on the
+// light features. These two add what only Elgato does, or does better in one
+// request:
+//   - identify: the light blinks (to find it, or as a silent signal: a
+//     doorbell for someone streaming with headphones on);
+//   - set_lighting: on, brightness and temperature at once, the "video call"
+//     preset, without the light showing its previous setting first.
+// Both take one or more lights: Key Lights often come in pairs. Every light
+// is tried; the action fails only when none answered.
 // -----------------------------------------------------------------------------
 
 import { createLogger } from '@gladysassistant/integration-sdk';
-import { signalDevice } from './devices/index.js';
 
-const logger = createLogger({ name: 'scenes' });
+const logger = createLogger({ name: 'elgato-scenes' });
+
+/** The chosen lights, as a list of external ids (one or several). */
+function chosen(fields) {
+  const value = fields?.devices;
+  const list = Array.isArray(value) ? value : value ? [value] : [];
+  const ids = [...new Set(list.filter((id) => typeof id === 'string' && id !== ''))];
+  if (ids.length === 0) {
+    throw new Error('Choose at least one Elgato light');
+  }
+  return ids;
+}
+
+async function onEach(fields, action) {
+  const ids = chosen(fields);
+  const failures = [];
+  for (const id of ids) {
+    try {
+      await action(id);
+    } catch (err) {
+      failures.push(err.message);
+    }
+  }
+  if (failures.length === ids.length) {
+    throw new Error(failures.join('; '));
+  }
+  if (failures.length > 0) {
+    logger.warn(`Scene action: ${failures.join('; ')}`);
+  }
+  return { reached: ids.length - failures.length };
+}
 
 export const SCENE_ACTIONS = {
-  // The ack is awaited under the action's `timeout_seconds` (15 s in the
-  // manifest), counted from the moment the scene reaches the action.
-  async identify_device(gladys, { fields, config }) {
-    logger.info(`Scene action identify_device <- ${fields.device}`);
-    const signalled = await signalDevice(gladys, fields.device, config);
-    return { signalled };
+  identify(hub, { fields }) {
+    return onEach(fields, (id) => hub.identify(id));
+  },
+
+  set_lighting(hub, { fields }) {
+    return onEach(fields, (id) =>
+      hub.setLighting(id, { brightness: fields.brightness, temperature: fields.temperature }),
+    );
   },
 };

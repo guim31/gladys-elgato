@@ -1,147 +1,217 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Elgato Light",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Elgato Key Light, Ring Light and Light Strip on the local network: brightness, white, color.",
+    "fr": "Key Light, Ring Light et Light Strip d'Elgato en réseau local : luminosité, blanc, couleur.",
+    "de": "Elgato Key Light, Ring Light und Light Strip im lokalen Netzwerk: Helligkeit, Weiß, Farbe.",
+    "es": "Key Light, Ring Light y Light Strip de Elgato en la red local: brillo, blanco, color."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-elgato:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-elgato/main/cover.png",
+  "categories": ["lighting"],
+  "transports": ["local"],
+  "network_discovery": [
+    {
+      "type": "mdns",
+      "service": "_elg._tcp"
+    }
+  ],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Finding your Elgato lights",
+        "fr": "Trouver vos lampes Elgato",
+        "de": "Deine Elgato-Leuchten finden",
+        "es": "Encontrar sus luces Elgato"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Elgato lights on the same network as Gladys are found automatically: open the Discovery tab. Set them up first in the Elgato Control Center app. If one is missing, enter its IP address below.",
+        "fr": "Les lampes Elgato du même réseau que Gladys sont trouvées automatiquement : ouvrez l'onglet Découverte. Configurez-les d'abord dans l'application Elgato Control Center. S'il en manque une, saisissez son adresse IP ci-dessous.",
+        "de": "Elgato-Leuchten im selben Netzwerk wie Gladys werden automatisch gefunden: Öffne den Tab „Entdecken“. Richte sie zuerst in der App Elgato Control Center ein. Fehlt eine, gib unten ihre IP-Adresse ein.",
+        "es": "Las luces Elgato de la misma red que Gladys se encuentran automáticamente: abra la pestaña Descubrir. Configúrelas primero en la aplicación Elgato Control Center. Si falta alguna, introduzca su dirección IP a continuación."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-elgato/blob/main/docs/en.md",
+          "label": {
+            "en": "Setup guide",
+            "fr": "Guide d'installation",
+            "de": "Installationsanleitung",
+            "es": "Guía de instalación"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "hosts",
+      "type": "string",
+      "label": {
+        "en": "IP addresses of Elgato lights",
+        "fr": "Adresses IP des lampes Elgato",
+        "de": "IP-Adressen der Elgato-Leuchten",
+        "es": "Direcciones IP de las luces Elgato"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
-    },
-    {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
       "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+        "en": "Optional, separated by commas. Only needed for the lights automatic discovery does not find.",
+        "fr": "Facultatif, séparées par des virgules. Seulement pour les lampes que la découverte automatique ne trouve pas.",
+        "de": "Optional, durch Kommas getrennt. Nur für Leuchten nötig, die die automatische Erkennung nicht findet.",
+        "es": "Opcional, separadas por comas. Solo para las luces que el descubrimiento automático no encuentra."
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
+      "placeholder": {
+        "en": "e.g. 192.168.1.50, 192.168.1.51",
+        "fr": "ex. 192.168.1.50, 192.168.1.51",
+        "de": "z. B. 192.168.1.50, 192.168.1.51",
+        "es": "p. ej. 192.168.1.50, 192.168.1.51"
+      },
       "required": false,
-      "default": "celsius",
+      "default": ""
+    },
+    {
+      "key": "poll_interval",
+      "type": "select",
+      "label": {
+        "en": "Refresh interval",
+        "fr": "Intervalle d'actualisation",
+        "de": "Aktualisierungsintervall",
+        "es": "Intervalo de actualización"
+      },
+      "description": {
+        "en": "How often each light is read, to follow the changes made from the Elgato app or the buttons of the light.",
+        "fr": "Fréquence de lecture de chaque lampe, pour suivre les changements faits depuis l'application Elgato ou les boutons de la lampe.",
+        "de": "Wie oft jede Leuchte gelesen wird, um Änderungen aus der Elgato-App oder über die Tasten der Leuchte zu verfolgen.",
+        "es": "Frecuencia de lectura de cada luz, para seguir los cambios hechos desde la aplicación Elgato o los botones de la luz."
+      },
+      "required": false,
+      "default": "10",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "5",
+          "label": {
+            "en": "5 seconds",
+            "fr": "5 secondes",
+            "de": "5 Sekunden",
+            "es": "5 segundos"
+          }
+        },
+        {
+          "value": "10",
+          "label": {
+            "en": "10 seconds",
+            "fr": "10 secondes",
+            "de": "10 Sekunden",
+            "es": "10 segundos"
+          }
+        },
+        {
+          "value": "15",
+          "label": {
+            "en": "15 seconds",
+            "fr": "15 secondes",
+            "de": "15 Sekunden",
+            "es": "15 segundos"
+          }
+        },
+        {
+          "value": "30",
+          "label": {
+            "en": "30 seconds",
+            "fr": "30 secondes",
+            "de": "30 Sekunden",
+            "es": "30 segundos"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "60 seconds",
+            "fr": "60 secondes",
+            "de": "60 Sekunden",
+            "es": "60 segundos"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the feature names",
+        "fr": "Langue des noms des fonctionnalités",
+        "de": "Sprache der Funktionsnamen",
+        "es": "Idioma de los nombres de las funciones"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Names given to the features of new devices (Light, Brightness, Color temperature...).",
+        "fr": "Noms donnés aux fonctionnalités des nouveaux appareils (Éclairage, Luminosité, Température de couleur...).",
+        "de": "Namen, die die Funktionen neuer Geräte erhalten (Licht, Helligkeit, Farbtemperatur...).",
+        "es": "Nombres que reciben las funciones de los nuevos dispositivos (Luz, Brillo, Temperatura de color...)."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
+      "key": "search",
+      "label": {
+        "en": "Search for Elgato lights",
+        "fr": "Rechercher les lampes Elgato",
+        "de": "Nach Elgato-Leuchten suchen",
+        "es": "Buscar luces Elgato"
+      },
+      "timeout_seconds": 45
     },
     {
       "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
-    }
-  ],
-  "scene_triggers": [
-    {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
-      "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
-      },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
-        },
-        {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
-        }
-      ],
-      "variables": [
-        {
-          "key": "target",
-          "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
-        }
-      ]
-    }
-  ],
-  "scene_actions": [
-    {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "label": {
+        "en": "Make a light blink",
+        "fr": "Faire clignoter une lampe",
+        "de": "Eine Leuchte blinken lassen",
+        "es": "Hacer parpadear una luz"
       },
       "timeout_seconds": 15,
       "fields": [
@@ -149,29 +219,139 @@
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
+          "label": {
+            "en": "Elgato light",
+            "fr": "Lampe Elgato",
+            "de": "Elgato-Leuchte",
+            "es": "Luz Elgato"
+          },
+          "required": true
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "identify",
+      "label": {
+        "en": "Make Elgato lights blink",
+        "fr": "Faire clignoter des lampes Elgato",
+        "de": "Elgato-Leuchten blinken lassen",
+        "es": "Hacer parpadear luces Elgato"
+      },
+      "description": {
+        "en": "The lights blink for a few seconds, then go back to their setting.",
+        "fr": "Les lampes clignotent quelques secondes, puis reprennent leur réglage.",
+        "de": "Die Leuchten blinken ein paar Sekunden lang und kehren dann zu ihrer Einstellung zurück.",
+        "es": "Las luces parpadean unos segundos y luego vuelven a su ajuste."
+      },
+      "timeout_seconds": 20,
+      "fields": [
+        {
+          "key": "devices",
+          "type": "multi_select",
+          "source": "devices",
+          "label": {
+            "en": "Elgato lights",
+            "fr": "Lampes Elgato",
+            "de": "Elgato-Leuchten",
+            "es": "Luces Elgato"
+          },
           "required": true
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "reached",
+          "type": "number",
+          "label": {
+            "en": "Lights reached",
+            "fr": "Lampes atteintes",
+            "de": "Erreichte Leuchten",
+            "es": "Luces alcanzadas"
+          }
         }
       ]
-    }
-  ],
-  "widgets": [
+    },
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "set_lighting",
+      "label": {
+        "en": "Set Elgato lights",
+        "fr": "Régler des lampes Elgato",
+        "de": "Elgato-Leuchten einstellen",
+        "es": "Ajustar luces Elgato"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Turns the lights on with a brightness and a white in one go, for a video call for example.",
+        "fr": "Allume les lampes avec une luminosité et un blanc en une fois, pour une visio par exemple.",
+        "de": "Schaltet die Leuchten mit Helligkeit und Weißton in einem Schritt ein, zum Beispiel für einen Videoanruf.",
+        "es": "Enciende las luces con un brillo y un blanco de una vez, para una videollamada por ejemplo."
+      },
+      "timeout_seconds": 20,
+      "fields": [
+        {
+          "key": "devices",
+          "type": "multi_select",
+          "source": "devices",
+          "label": {
+            "en": "Elgato lights",
+            "fr": "Lampes Elgato",
+            "de": "Elgato-Leuchten",
+            "es": "Luces Elgato"
+          },
+          "required": true
+        },
+        {
+          "key": "brightness",
+          "type": "number",
+          "label": {
+            "en": "Brightness (%)",
+            "fr": "Luminosité (%)",
+            "de": "Helligkeit (%)",
+            "es": "Brillo (%)"
+          },
+          "description": {
+            "en": "1 to 100. Empty: unchanged.",
+            "fr": "De 1 à 100. Vide : inchangée.",
+            "de": "1 bis 100. Leer: unverändert.",
+            "es": "De 1 a 100. Vacío: sin cambios."
+          },
+          "required": false,
+          "min": 1,
+          "max": 100
+        },
+        {
+          "key": "temperature",
+          "type": "number",
+          "label": {
+            "en": "Color temperature (K)",
+            "fr": "Température de couleur (K)",
+            "de": "Farbtemperatur (K)",
+            "es": "Temperatura de color (K)"
+          },
+          "description": {
+            "en": "2900 (warm) to 7000 (cold). Empty: unchanged.",
+            "fr": "De 2900 (chaud) à 7000 (froid). Vide : inchangée.",
+            "de": "2900 (warm) bis 7000 (kalt). Leer: unverändert.",
+            "es": "De 2900 (cálido) a 7000 (frío). Vacío: sin cambios."
+          },
+          "required": false,
+          "min": 2900,
+          "max": 7000
+        }
+      ],
+      "outputs": [
+        {
+          "key": "reached",
+          "type": "number",
+          "label": {
+            "en": "Lights reached",
+            "fr": "Lampes atteintes",
+            "de": "Erreichte Leuchten",
+            "es": "Luces alcanzadas"
+          }
+        }
+      ]
     }
   ]
 }

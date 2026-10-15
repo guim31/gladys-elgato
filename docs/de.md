@@ -1,0 +1,161 @@
+# Elgato Light
+
+Steuere deine [Elgato](https://www.elgato.com)-Leuchten aus Gladys, über dein
+lokales Netzwerk: Key Light, Key Light Air, Key Light Mini, Ring Light und
+Light Strip. Ein und aus, Helligkeit, das Weiß von warm bis kalt, die Farbe
+eines Light Strip, der Akku einer Key Light Mini, und zwei Szenenaktionen:
+Leuchten blinken lassen und mehrere Leuchten in einem Schritt für einen
+Videoanruf einstellen. Kein Konto und keine Cloud: Gladys spricht direkt mit
+jeder Leuchte, wie die App Elgato Control Center.
+
+> **Ohne die Hardware entwickelt: Rückmeldungen willkommen.** Diese
+> Integration wurde mit echten Antworten von Elgato-Leuchten gebaut und
+> getestet, die die Projekte python-elgato und Home Assistant aufgezeichnet
+> haben, und mit einer simulierten Leuchte, nicht mit einer echten. Wenn etwas
+> nicht wie beschrieben funktioniert, sag es bitte im
+> [Gladys-Forum](https://community.gladysassistant.com) oder in den
+> [Issues](https://github.com/guim31/gladys-elgato/issues).
+
+## Was du brauchst
+
+- Gladys Assistant 5.1.0 oder neuer.
+- Elgato-Leuchten, die bereits mit der App **Elgato Control Center**
+  eingerichtet und mit dem WLAN desselben Netzwerks wie Gladys verbunden sind.
+- Sonst nichts: kein Elgato-Konto, kein Schlüssel, kein Internetzugang. Die
+  Leuchten antworten auf TCP-Port 9123 deines lokalen Netzwerks.
+
+## Einrichtung
+
+1. Installiere die Integration aus dem Gladys-Katalog. Der
+   Installationsbildschirm fragt nach einer Berechtigung: Gladys darf in
+   deinem Netzwerk nach dem Dienst `_elg._tcp` suchen (mDNS), so wie Control
+   Center die Leuchten findet.
+2. Öffne ihre **Konfiguration**. Nichts ist Pflicht; die Optionen sind:
+   - **IP-Adressen der Elgato-Leuchten**: nur für die Leuchten, die die
+     automatische Erkennung nicht findet, durch Kommas getrennt (zum Beispiel
+     `192.168.1.50, 192.168.1.51`). Control Center zeigt die Adresse jeder
+     Leuchte in ihren Einstellungen; dein Router listet sie auch. Ein Name
+     (`keylight.lan`) und ein Port (`192.168.1.50:9123`) sind erlaubt.
+   - **Aktualisierungsintervall**: wie oft jede Leuchte gelesen wird, von 5
+     bis 60 Sekunden (standardmäßig 10). So schnell sieht Gladys eine Änderung
+     aus Control Center, von einem Stream Deck oder über die Tasten der
+     Leuchte.
+   - **Sprache der Funktionsnamen**: Englisch, Französisch, Deutsch oder
+     Spanisch (standardmäßig Französisch). Die Namen der Funktionen werden
+     beim Hinzufügen des Geräts vergeben.
+3. Öffne den Tab **Entdecken**: ein Gerät pro Leuchte. Klicke auf
+   **Hinzufügen**, wähle einen Raum, speichere.
+4. Fehlt eine Leuchte? Klicke im Konfigurationsbildschirm auf **Nach
+   Elgato-Leuchten suchen**: Die Nachricht unter der Schaltfläche listet die
+   gefundenen Leuchten und die, die nicht antworten.
+
+Eine Leuchte, die ihre Adresse wechselt, wird innerhalb von 15 Minuten wieder
+gefunden, ohne neues Gerät in Gladys: Die Leuchte wird an ihrer Seriennummer erkannt.
+
+## Die Gladys-Geräte
+
+Jede Leuchte wird ein Gladys-Gerät, benannt nach dem Namen aus Control Center
+oder nach ihrem Produkt und dem Ende ihrer Seriennummer (zum Beispiel _Elgato
+Key Light Air 0002_). Benenne es um, wie du willst.
+
+| Funktion       | Was es ist                                    | Leuchten       |
+| -------------- | --------------------------------------------- | -------------- |
+| Licht          | Ein / aus                                     | Alle           |
+| Helligkeit     | 1 bis 100 %; 0 schaltet die Leuchte aus       | Alle           |
+| Farbtemperatur | Das Weiß, von 2900 K (warm) bis 7000 K (kalt) | Alle           |
+| Farbton        | Die Farbe, 0 bis 360°                         | Light Strip    |
+| Sättigung      | 0 % (weiß) bis 100 % (kräftige Farbe)         | Light Strip    |
+| Farbe          | Die Farbe, für das Farbrad des Dashboards     | Light Strip    |
+| Akku           | Ladestand, in %                               | Key Light Mini |
+| Lädt           | Ob der Akku gerade lädt                       | Key Light Mini |
+
+- Eine Helligkeit, ein Weiß oder eine Farbe zu wählen schaltet die Leuchte
+  auch ein.
+- Ein Light Strip zeigt entweder ein Weiß oder eine Farbe: Im Weißmodus
+  werden Farbton, Sättigung und Farbe nicht aktualisiert, im Farbmodus die
+  Farbtemperatur nicht.
+- Antwortet eine Leuchte nicht mehr, zeigt ihr Badge sie als nicht erreichbar
+  an und Gladys behält ihren letzten Zustand (eine Elgato-Leuchte kann das
+  WLAN verlieren und trotzdem leuchten).
+
+## Schaltflächen der Konfiguration
+
+- **Nach Elgato-Leuchten suchen**: sucht jetzt erneut im Netzwerk und listet
+  die gefundenen Leuchten.
+- **Eine Leuchte blinken lassen**: Wähle eine Leuchte, sie blinkt ein paar
+  Sekunden lang. Praktisch, um vor dem Benennen zu erkennen, welche welche ist.
+
+## Dashboard
+
+Kein eigenes Widget: Das Licht-Panel des Gladys-Dashboards hat bereits alle
+Bedienelemente einer Elgato-Leuchte (Ein/Aus, Helligkeitsbalken, Regler von
+warm bis kalt, Farbrad mit Farbton und Sättigung für den Light Strip). Füge
+das Gerät einer Box _Geräte im Raum_ hinzu, oder jeder Box, die Geräte zeigt.
+
+## Szenen
+
+### Auslöser
+
+Kein eigener Auslöser: Nutze den üblichen Auslöser auf den **Gerätezustand**
+der Funktionen (die Leuchte geht an, die Helligkeit ändert sich, der Akku
+fällt unter 20 %...).
+
+### Aktionen
+
+- **Elgato-Leuchten blinken lassen**: Eine oder mehrere Leuchten blinken ein
+  paar Sekunden lang und kehren dann zu ihrer Einstellung zurück.
+- **Elgato-Leuchten einstellen**: Schaltet eine oder mehrere Leuchten mit
+  einer Helligkeit (1 bis 100 %) und einer Farbtemperatur (2900 bis 7000 K)
+  ein, beide optional, mit einer einzigen Anfrage pro Leuchte: Die Leuchte
+  zeigt nicht erst ihre vorherige Einstellung. Ein Light Strip im Farbmodus
+  wechselt zu Weiß, wenn eine Temperatur angegeben ist.
+
+Beide Aktionen geben die Zahl der erreichten Leuchten an die folgenden
+Aktionen weiter und schlagen nur fehl, wenn keine Leuchte geantwortet hat.
+
+### Szenenideen
+
+- **Videoanruf**: Wenn der Kalendertermin „Meeting“ beginnt → **Elgato-Leuchten
+  einstellen** für die zwei Key Lights am Schreibtisch, 40 % und 5000 K; an
+  seinem Ende schaltest du sie aus.
+- **Stille Klingel**: Wenn es klingelt → **Elgato-Leuchten blinken lassen** im
+  Büro, für alle mit Kopfhörern.
+- **Akku schwach**: Wenn der **Akku** der Key Light Mini unter 15 % fällt →
+  die Nachricht „Lade die Key Light Mini auf“ senden.
+- **Abend**: Bei Sonnenuntergang → den Light Strip einschalten,
+  Farbtemperatur 2900 K, Helligkeit 30 %.
+
+## Fehlerbehebung
+
+- **Keine Leuchte automatisch gefunden**: Prüfe, ob die Leuchten und Gladys
+  im selben Netzwerk sind (ein Gastnetz oder ein eigenes IoT-VLAN blockiert
+  die Erkennung). Gib die IP-Adressen in der Konfiguration ein: Das geht auch
+  netzwerkübergreifend, solange Gladys Port 9123 erreicht. Feste Adressen für
+  die Leuchten im Router helfen auch.
+- **„antwortet nicht“**: Die Leuchte ist ausgesteckt, ihr Akku ist leer, oder
+  sie hat das WLAN verloren. Control Center zeigt dann dasselbe. Die Leuchte kommt von
+  selbst zurück, sobald sie wieder antwortet.
+- **Das Weiß oder die Farbe in Gladys weicht leicht von Control Center ab**:
+  Die Leuchten arbeiten in Mired und in ganzen Farbtongraden; Gladys zeigt den
+  nächsten Kelvinwert (auf 10 K genau) und die nächste Farbe.
+- Die Integration protokolliert, was sie findet und was nicht antwortet:
+  Öffne die Protokolle der Integration in der Gladys-Oberfläche
+  (`LOG_LEVEL=debug` zeigt jede Abfrage).
+
+## Grenzen
+
+- Änderungen außerhalb von Gladys (Control Center, Stream Deck, Tasten der
+  Leuchte) werden bei der nächsten Abfrage gesehen, innerhalb des
+  Aktualisierungsintervalls: Die Leuchten senden nichts von sich aus. Gladys
+  liest jede Leuchte mit einer kleinen lokalen Anfrage pro Intervall (zwei
+  für eine Key Light Mini, die auch ihren Akku meldet). Die lokale API hat
+  weder Kontingent noch Nutzungsbedingungen; kein Internetverkehr.
+- Nicht angeboten: das Einschaltverhalten, die Überblendzeiten, der
+  Studiomodus und der Energiesparmodus der Key Light Mini,
+  Firmware-Updates (nutze Control Center), die Szenen des Light Strip Pro.
+- Ein Gladys-Gerät pro Leuchte: Die Leuchten werden nicht gruppiert.
+- Ohne echte Elgato-Leuchte entwickelt: Was nicht geprüft werden konnte, steht
+  in der [README](https://github.com/guim31/gladys-elgato#readme).
+
+Diese Integration ist nicht mit Elgato oder Corsair verbunden. Elgato, Key
+Light, Ring Light und Light Strip sind Marken von Corsair Memory, Inc.

@@ -1,0 +1,57 @@
+{
+  "source": "python-elgato tests/fixtures: info-key-light-mini.json, settings-key-light-mini.json, battery-info-low.json (on battery, draining)",
+  "info": {
+    "productName": "Elgato Key Light Mini",
+    "hardwareBoardType": 202,
+    "hardwareRevision": 0.1,
+    "macAddress": "3C:6A:9D:00:00:04",
+    "firmwareBuildNumber": 229,
+    "firmwareVersion": "1.0.4",
+    "serialNumber": "GW00L0A00004",
+    "displayName": "",
+    "features": ["lights"],
+    "wifi-info": {
+      "ssid": "example-ssid",
+      "frequencyMHz": 2400,
+      "rssi": -60
+    }
+  },
+  "settings": {
+    "powerOnBehavior": 1,
+    "powerOnBrightness": 20,
+    "powerOnTemperature": 230,
+    "switchOnDurationMs": 100,
+    "switchOffDurationMs": 300,
+    "colorChangeDurationMs": 100,
+    "battery": {
+      "energySaving": {
+        "enable": 1,
+        "minimumBatteryLevel": 15.0,
+        "disableWifi": 0,
+        "adjustBrightness": {
+          "enable": 1,
+          "brightness": 10.0
+        }
+      },
+      "bypass": 0
+    }
+  },
+  "lights": {
+    "numberOfLights": 1,
+    "lights": [
+      {
+        "on": 1,
+        "brightness": 10,
+        "temperature": 143
+      }
+    ]
+  },
+  "battery": {
+    "powerSource": 2,
+    "level": 11.4,
+    "status": 0,
+    "currentBatteryVoltage": 3402,
+    "inputChargeVoltage": 0,
+    "inputChargeCurrent": 0
+  }
+}
