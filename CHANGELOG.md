@@ -12,44 +12,22 @@ the notes of the version's GitHub Release.
 
 ### Added
 
-- A working example of scene triggers, scene actions and dashboard widgets
-  (Gladys 5.1.0 or later).
-- `CHANGELOG.md`, rolled by the Release workflow.
-- A GitHub Release for every version, with its changelog section as notes: the
-  Gladys Supervision page links each version to the repository's releases.
-- CI runs the tests on Node 22 and 24, and builds the Docker image.
-- Dependabot keeps the npm dependencies and the GitHub Actions up to date.
-- `SECURITY.md` (how to report a vulnerability) and `CLAUDE.md` (project rules
-  for contributors and coding assistants).
-- Manifest tests: `version` matches `package.json`, `docker_image` is tagged
-  with it, descriptions hold 10 to 100 characters, placeholders are
-  multi-language objects.
-- The latitude and longitude fields show an example value as placeholder.
+- One Gladys device per Elgato light (Key Light, Key Light Air, Key Light
+  Mini, Ring Light, Light Strip), found automatically on the local network
+  through Gladys (mDNS `_elg._tcp`), or by IP address. No account, no cloud.
+- On/off, brightness and colour temperature (2900 to 7000 K) on every light;
+  hue, saturation and a colour for the colour wheel on the Light Strip;
+  battery level and charging on the Key Light Mini.
+- Changes made from Elgato Control Center, a Stream Deck or the buttons of
+  the light reach Gladys within the refresh interval (10 seconds by default,
+  5 to 60). A light that stops answering is shown unreachable, and found
+  again by its serial number when its address changes.
+- Two scene actions on one or more lights: "Make Elgato lights blink", and
+  "Set Elgato lights" (on, brightness and white in a single request, for a
+  video call).
+- Two buttons in the Configuration screen: "Search for Elgato lights" and
+  "Make a light blink".
+- Texts and documentation in English, French, German and Spanish.
+- `scripts/probe.mjs`: a read-only check of a real light, safe to share.
 
-### Changed
-
-- Node.js 22 or later is required (Node 20 is end-of-life).
-- Integration SDK 0.15.0. The tests now run against the fake Gladys of the
-  SDK, which refuses the payloads Gladys refuses.
-- The refresh interval is one minute minimum, the fastest Gladys polls a
-  device. The plug's power is only sent when it changes, and every 30
-  minutes otherwise.
-
-### Fixed
-
-- Gladys refused the devices of the Discovery tab: the weather station and
-  the plug declared their poll frequency in seconds instead of one of the
-  values Gladys accepts, and were never polled. They now poll every minute,
-  and the readings follow the refresh interval of the configuration.
-
-- The release commit no longer fails `npm run format:check`: the Release
-  workflow updates the manifest `version` and `docker_image` in place instead
-  of re-printing the whole file with `jq`.
-- The integration can write to `/data`: the image creates the directory owned
-  by the `node` user, a new Docker volume was owned by root.
-- A sub-container running the integration's own image follows it to the new
-  tag at each release, as well as in the manifest of the build summary: it kept
-  the previous tag, which may not exist on the registry. Sub-containers on a
-  third-party image (a broker, a database...) keep theirs.
-
-[Unreleased]: https://github.com/GladysAssistant/integration-template-js/commits/main
+[Unreleased]: https://github.com/guim31/gladys-elgato/commits/main

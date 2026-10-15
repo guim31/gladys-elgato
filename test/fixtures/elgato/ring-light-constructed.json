@@ -1,0 +1,30 @@
+{
+  "source": "CONSTRUCTED, not recorded: the Key Light answers with the product name of the Ring Light. No published fixture of a Ring Light exists; it checks that an unknown white light is handled like a Key Light.",
+  "info": {
+    "productName": "Elgato Ring Light",
+    "hardwareBoardType": 75,
+    "firmwareBuildNumber": 218,
+    "firmwareVersion": "1.0.3",
+    "serialNumber": "AW00A0A00007",
+    "displayName": "",
+    "features": ["lights"]
+  },
+  "settings": {
+    "powerOnBehavior": 1,
+    "powerOnBrightness": 20,
+    "powerOnTemperature": 213,
+    "switchOnDurationMs": 100,
+    "switchOffDurationMs": 300,
+    "colorChangeDurationMs": 100
+  },
+  "lights": {
+    "numberOfLights": 1,
+    "lights": [
+      {
+        "on": 0,
+        "brightness": 30,
+        "temperature": 250
+      }
+    ]
+  }
+}

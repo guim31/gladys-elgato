@@ -1,67 +1,160 @@
-# Template de démonstration
+# Elgato Light
 
-Ceci est la documentation utilisateur de l'intégration. Gladys ré-héberge ce
-fichier et affiche un lien **Documentation** permanent vers lui dans l'écran
-de configuration (dans la langue de l'utilisateur, avec l'anglais en repli) —
-c'est au moment de configurer que l'utilisateur en a le plus besoin. Gardez
-les courtes indications d'accueil dans les blocs `section` du `config_schema`
-du manifest ; mettez ici le pas-à-pas détaillé (captures d'écran, dépannage…).
+Pilotez vos lampes [Elgato](https://www.elgato.com) depuis Gladys, en réseau
+local : Key Light, Key Light Air, Key Light Mini, Ring Light et Light Strip.
+Allumage et extinction, luminosité, le blanc du chaud au froid, la couleur d'un
+Light Strip, la batterie d'une Key Light Mini, et deux actions de scène : faire
+clignoter des lampes, et régler plusieurs lampes d'un coup pour une visio. Ni
+compte ni cloud : Gladys parle directement à chaque lampe, comme le fait
+l'application Elgato Control Center.
 
-## Ce que vous obtenez
+> **Développée sans le matériel : vos retours sont les bienvenus.** Cette
+> intégration a été construite et testée sur de vraies réponses de lampes
+> Elgato enregistrées par les projets python-elgato et Home Assistant, et sur
+> une lampe simulée, pas sur une vraie lampe. Si quelque chose ne marche pas
+> comme décrit, dites-le sur le [forum Gladys](https://community.gladysassistant.com)
+> ou dans les [issues](https://github.com/guim31/gladys-elgato/issues).
 
-Six appareils de démonstration apparaissent après l'installation : une
-station météo (vraies données Open-Meteo), un interrupteur, une lampe
-variable, une prise connectée avec mesure de puissance, un détecteur de
-mouvement et une caméra.
+## Ce qu'il faut
 
-## Configuration
+- Gladys Assistant 5.1.0 ou plus récent.
+- Des lampes Elgato déjà configurées avec l'application **Elgato Control
+  Center**, connectées au Wi-Fi du même réseau que Gladys.
+- Rien d'autre : ni compte Elgato, ni clé, ni accès à Internet. Les lampes
+  répondent sur le port TCP 9123 de votre réseau local.
 
-1. Ouvrez l'onglet **Configuration** de l'intégration.
-2. Renseignez la **latitude** et la **longitude** que la station météo de
-   démonstration doit observer (Paris par défaut), et choisissez votre unité
-   de température. L'**intervalle de rafraîchissement** règle la fréquence
-   de lecture de la station météo et de la puissance de la prise : toutes
-   les 5 minutes par défaut, toutes les minutes au plus.
-3. Enregistrez : les appareils apparaissent dans l'onglet **Découverte**,
-   prêts à être ajoutés.
+## Installation
 
-Le réglage **Préférer la connexion locale** pilote la prise de
-démonstration : elle affiche en badge le canal réellement utilisé (local ou
-cloud), avec un point orange quand elle fonctionne en mode dégradé (local
-refusé, bascule cloud).
+1. Installez l'intégration depuis le catalogue de Gladys. L'écran
+   d'installation demande une autorisation : Gladys peut chercher le service
+   `_elg._tcp` sur votre réseau (mDNS), comme Control Center trouve les lampes.
+2. Ouvrez sa **Configuration**. Rien n'est obligatoire ; les options sont :
+   - **Adresses IP des lampes Elgato** : seulement pour les lampes que la
+     découverte automatique ne trouve pas, séparées par des virgules (par
+     exemple `192.168.1.50, 192.168.1.51`). Control Center affiche l'adresse
+     de chaque lampe dans ses réglages ; votre box la liste aussi. Un nom
+     (`keylight.lan`) et un port (`192.168.1.50:9123`) sont acceptés.
+   - **Intervalle d'actualisation** : la fréquence de lecture de chaque lampe,
+     de 5 à 60 secondes (10 par défaut). C'est le délai avant que Gladys voie
+     un changement fait depuis Control Center, un Stream Deck ou les boutons de
+     la lampe.
+   - **Langue des noms des fonctionnalités** : anglais, français, allemand ou
+     espagnol (français par défaut). Les noms des fonctionnalités sont donnés
+     à l'ajout de l'appareil.
+3. Ouvrez l'onglet **Découverte** : un appareil par lampe. Cliquez sur
+   **Ajouter**, choisissez une pièce, enregistrez.
+4. Une lampe manque ? Cliquez sur **Rechercher les lampes Elgato** dans
+   l'écran de configuration : le message sous le bouton liste les lampes
+   trouvées et celles qui ne répondent pas.
 
-## Actions
+Une lampe qui change d'adresse est retrouvée dans les 15 minutes, sans nouvel
+appareil dans Gladys : elle est reconnue à son numéro de série.
 
-- **Tester le fournisseur météo** — effectue une requête en direct vers
-  Open-Meteo et affiche la température et l'humidité actuelles sous le
-  bouton.
-- **Identifier un appareil** — choisissez un de vos appareils dans la liste
-  et il se signale (la lampe de démonstration « clignote » dans les logs).
+## Les appareils Gladys
 
-## Scènes
+Chaque lampe devient un appareil Gladys, nommé d'après le nom donné dans
+Control Center, ou d'après son produit et la fin de son numéro de série (par
+exemple _Elgato Key Light Air 0002_). Renommez-le à votre guise.
 
-L'intégration ajoute ses propres cartes à l'éditeur de scènes (Gladys 5.1
-ou plus récent), dans la catégorie **Intégrations** :
+| Fonctionnalité         | Ce que c'est                                            | Lampes         |
+| ---------------------- | ------------------------------------------------------- | -------------- |
+| Éclairage              | Allumée / éteinte                                       | Toutes         |
+| Luminosité             | De 1 à 100 % ; 0 éteint la lampe                        | Toutes         |
+| Température de couleur | Le blanc, de 2900 K (chaud) à 7000 K (froid)            | Toutes         |
+| Teinte                 | La couleur, de 0 à 360°                                 | Light Strip    |
+| Saturation             | De 0 % (blanc) à 100 % (couleur vive)                   | Light Strip    |
+| Couleur                | La couleur, pour la roue chromatique du tableau de bord | Light Strip    |
+| Batterie               | Niveau de charge, en %                                  | Key Light Mini |
+| En charge              | Si la batterie est en charge                            | Key Light Mini |
 
-- **Mouvement détecté** (déclencheur) — lance la scène quand un détecteur
-  de démonstration voit bouger quelque chose. Choisissez éventuellement le
-  détecteur et ce qui a bougé (personne, animal) ; laissés vides, toute
-  détection correspond. Les actions suivantes peuvent lire ce qui a bougé
-  avec `{{triggerEvent.data.target}}`.
-- **Identifier un appareil** (action) — fait se signaler l'appareil choisi.
-  Elle indique si l'appareil a pu se signaler, pour que les actions
-  suivantes puissent en dépendre.
+- Choisir une luminosité, un blanc ou une couleur allume aussi la lampe.
+- Un Light Strip affiche soit un blanc, soit une couleur : en mode blanc, sa
+  teinte, sa saturation et sa couleur ne sont pas mises à jour ; en mode
+  couleur, sa température de couleur ne l'est pas.
+- Quand une lampe ne répond plus, son badge indique qu'elle est injoignable et
+  Gladys garde son dernier état (une lampe Elgato peut perdre le Wi-Fi tout en
+  restant allumée).
+
+## Boutons de la configuration
+
+- **Rechercher les lampes Elgato** : cherche de nouveau sur le réseau,
+  maintenant, et liste les lampes trouvées.
+- **Faire clignoter une lampe** : choisissez une lampe, elle clignote quelques
+  secondes. Pratique pour savoir laquelle est laquelle avant de les nommer.
 
 ## Tableau de bord
 
-Ajoutez le widget **État de la démo** à un tableau de bord : il affiche en
-direct la température de la station météo et la puissance de la prise du
-bureau, la connexion utilisée par la prise (en orange si dégradée) et la
-position observée. Son bouton **Identifier la lampe** fait se signaler la
-lampe de démonstration.
+Pas de widget dédié : le panneau lumière du tableau de bord de Gladys a déjà
+toutes les commandes d'une lampe Elgato (allumage, barre de luminosité,
+curseur du chaud au froid, roue chromatique avec teinte et saturation pour le
+Light Strip). Ajoutez l'appareil à une boîte _Appareils de la pièce_, ou à
+toute boîte qui affiche des appareils.
+
+## Scènes
+
+### Déclencheurs
+
+Pas de déclencheur propre : utilisez le déclencheur habituel sur **l'état
+d'un appareil** (la lampe s'allume, la luminosité change, la batterie passe
+sous 20 %...).
+
+### Actions
+
+- **Faire clignoter des lampes Elgato** : une ou plusieurs lampes clignotent
+  quelques secondes, puis reprennent leur réglage.
+- **Régler des lampes Elgato** : allume une ou plusieurs lampes avec une
+  luminosité (de 1 à 100 %) et une température de couleur (de 2900 à 7000 K),
+  toutes deux facultatives, en une seule requête par lampe : la lampe ne
+  montre pas d'abord son réglage précédent. Un Light Strip en mode couleur
+  passe au blanc quand une température est donnée.
+
+Les deux actions donnent aux actions suivantes le nombre de lampes atteintes,
+et n'échouent que si aucune lampe n'a répondu.
+
+### Idées de scènes
+
+- **Visio** : quand l'événement d'agenda « Réunion » commence → **Régler des
+  lampes Elgato** sur les deux Key Light du bureau, 40 % et 5000 K ; à la fin,
+  éteignez-les.
+- **Sonnette silencieuse** : quand on sonne → **Faire clignoter des lampes
+  Elgato** du bureau, pour qui porte un casque.
+- **Batterie faible** : quand la **Batterie** de la Key Light Mini passe sous
+  15 % → envoyer le message « Recharge la Key Light Mini ».
+- **Soirée** : au coucher du soleil → allumer le Light Strip, température de
+  couleur 2900 K, luminosité 30 %.
 
 ## Dépannage
 
-L'intégration journalise tout ce qu'elle fait : consultez les logs de
-l'intégration depuis l'interface Gladys (ou `docker logs` sur l'hôte) avec
-`LOG_LEVEL=debug` pour le détail complet.
+- **Aucune lampe trouvée automatiquement** : vérifiez que les lampes et Gladys
+  sont sur le même réseau (un réseau invité ou un VLAN séparé pour les objets
+  connectés bloque la découverte). Saisissez les adresses IP dans la
+  configuration : cela marche d'un réseau à l'autre tant que Gladys atteint le
+  port 9123. Donner une adresse fixe aux lampes dans votre box aide aussi.
+- **« ne répond pas »** : la lampe est débranchée, sa batterie est vide, ou
+  elle a perdu le Wi-Fi. Control Center montre alors la même chose. Elle
+  revient d'elle-même dès qu'elle répond de nouveau.
+- **Le blanc ou la couleur dans Gladys diffère un peu de Control Center** :
+  les lampes travaillent en mireds et en degrés de teinte entiers ; Gladys
+  affiche la valeur en kelvins la plus proche (à 10 K près) et la couleur la
+  plus proche.
+- L'intégration journalise ce qu'elle trouve et ce qui ne répond pas : ouvrez
+  les logs de l'intégration depuis l'interface de Gladys (`LOG_LEVEL=debug`
+  montre chaque lecture).
+
+## Limites
+
+- Les changements faits hors de Gladys (Control Center, Stream Deck, boutons
+  de la lampe) sont vus à la lecture suivante, dans l'intervalle
+  d'actualisation : les lampes n'envoient rien d'elles-mêmes. Gladys lit
+  chaque lampe par une petite requête locale par intervalle (deux pour une Key
+  Light Mini, qui donne aussi sa batterie). L'API locale n'a ni quota ni
+  conditions d'utilisation ; aucun trafic Internet.
+- Non proposés : le comportement à l'allumage, les durées de fondu, le mode
+  studio et l'économie d'énergie de la Key Light Mini, les mises à jour du
+  firmware (utilisez Control Center), les scènes du Light Strip Pro.
+- Un appareil Gladys par lampe : les lampes ne sont pas regroupées.
+- Développée sans vraie lampe Elgato : ce qui n'a pas pu être vérifié est listé
+  dans le [README](https://github.com/guim31/gladys-elgato#readme).
+
+Cette intégration n'est pas affiliée à Elgato ni à Corsair. Elgato, Key Light,
+Ring Light et Light Strip sont des marques de Corsair Memory, Inc.

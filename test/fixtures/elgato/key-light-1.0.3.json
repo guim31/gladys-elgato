@@ -1,0 +1,37 @@
+{
+  "source": "python-elgato tests/fixtures: info-key-light.json, settings-keylight.json, state-temperature.json",
+  "info": {
+    "productName": "Elgato Key Light",
+    "hardwareBoardType": 53,
+    "hardwareRevision": 1,
+    "macAddress": "3C:6A:9D:00:00:01",
+    "firmwareBuildNumber": 218,
+    "firmwareVersion": "1.0.3",
+    "serialNumber": "CN00A0A00001",
+    "displayName": "Desk left",
+    "features": ["lights"],
+    "wifi-info": {
+      "ssid": "example-ssid",
+      "frequencyMHz": 2400,
+      "rssi": -48
+    }
+  },
+  "settings": {
+    "powerOnBehavior": 1,
+    "powerOnBrightness": 20,
+    "powerOnTemperature": 213,
+    "switchOnDurationMs": 100,
+    "switchOffDurationMs": 300,
+    "colorChangeDurationMs": 100
+  },
+  "lights": {
+    "numberOfLights": 1,
+    "lights": [
+      {
+        "on": 1,
+        "brightness": 21,
+        "temperature": 297
+      }
+    ]
+  }
+}

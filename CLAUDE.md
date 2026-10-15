@@ -32,15 +32,24 @@ pushing.
 
 ```
 index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
+src/app.js                        registers every SDK handler on the hub (the tests use it too)
+src/hub.js                        the hub: discovery, own polling timer, states, commands
+src/devices.js                    light ↔ Gladys device: features, values, PUT bodies, names
+src/elgato/client.js              HTTP client of the local API (port 9123), one request at a time
+src/elgato/model.js               capabilities, mired ↔ kelvin, hue/saturation ↔ RGB
+src/discovery.js                  mDNS answers relayed by the core, bounded concurrency
 src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/texts.js                      messages in en/fr/de/es (connection status, action buttons)
+src/problems.js                   repeated failures: one line when they start, one when they end
+src/store.js                      /data/elgato-state.json (lights seen), atomic writes
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
-gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
+scripts/probe.mjs                 read-only check of a real light (`node scripts/probe.mjs <ip>`)
+tools/fake-elgato.mjs             a simulated light, to try with a real Gladys
+gladys-assistant-integration.json manifest: name, config_schema, actions, scene actions...
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+test/helpers/fakeElgato.js        fake light: a real HTTP server on 127.0.0.1, from a fixture
+test/fixtures/elgato/             real answers (python-elgato, Home Assistant), anonymized
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,10 +79,12 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** is in four languages (English, French, German with
+  "du", Spanish with "usted"): action messages, manifest texts, feature names
+  and `docs/{en,fr,de,es}.md`, kept in sync. `test/i18n.test.js` checks it.
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
-  in English. Tests never touch the network.
+  in English. Tests never touch the network: the fake lights listen on
+  127.0.0.1.
 
 ---
 
@@ -233,3 +244,53 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## Elgato (gladys-elgato)
+
+**API** (références : python-elgato, MIT, et l'intégration `elgato` de Home Assistant)
+
+- HTTP en clair sur le port **9123**, sans authentification : `GET /elgato/accessory-info`
+  (`productName`, `serialNumber`, `firmwareVersion`, `macAddress` et `wifi-info` sur les firmwares
+  récents seulement), `GET /elgato/lights/settings` (bloc `battery` sur la Key Light Mini,
+  `powerOnHue` sur une lampe couleur), `GET`/`PUT /elgato/lights`
+  (`{ numberOfLights: 1, lights: [{ on, brightness, temperature | hue, saturation }] }`),
+  `GET /elgato/battery-info` (`level` décimal, `status` 2 = en charge, `powerSource`),
+  `POST /elgato/identify`.
+- `temperature` en **mireds, 143 à 344** (python-elgato refuse le reste) : publiée en kelvins
+  (unité `kelvin`, 2900-7000), que le panneau lumière du cœur lit comme une échelle physique ; les
+  intégrations du cœur (Hue, Tasmota) publient des mireds sans unité, que le panneau détecte par
+  `min ≥ 100`. Les deux s'affichent ; les kelvins se lisent dans l'historique et les scènes.
+- Ne jamais envoyer `temperature` avec `hue`/`saturation` dans le même `PUT`. Un Light Strip en
+  mode blanc qui reçoit une luminosité seule **repasse à sa dernière couleur** : renvoyer sa
+  `temperature` avec (correctif de Home Assistant).
+- Identifiant stable : `serialNumber` (comme la `unique_id` de Home Assistant), en minuscules, lettres
+  et chiffres. La MAC manque sur les vieux firmwares (Key Light Air 1.0.3) : pas un identifiant.
+- `wifi-info.ssid` : le nom du réseau Wi-Fi, donnée privée. `pickInfo` ne le garde jamais ; un test
+  vérifie qu'il n'atteint ni les journaux, ni `/data`, ni Gladys.
+- Le petit serveur HTTP des lampes supporte mal le trafic parallèle (Home Assistant sérialise ses
+  appels) : une requête à la fois par lampe, `Connection: close`, pas d'agent keep-alive.
+
+**Découverte**
+
+- mDNS `_elg._tcp` par la découverte médiée du cœur (`network_discovery` `mdns`). Le cœur rend
+  `{ name, host, addresses, port, txt }` ; `host` est un nom `.local` inutilisable dans le conteneur :
+  seules les adresses IPv4 servent. TXT : `id` (MAC), `md`, `dt`, `mf`, `pv` ; indices seulement.
+- Un scan mDNS en cours renvoie 409 (« occupé », pas d'avertissement) ; 403 = cœur sans la
+  fonction.
+
+**Choix de conception**
+
+- `should_poll: false` + minuteur interne (10 s par défaut, comme HA), lecture des seuls appareils
+  ajoutés ; `onPoll` de repli sauté si le minuteur a lu il y a moins de 0,9 intervalle, et le
+  minuteur saute une lampe lue il y a moins d'une demi-période. Les tests avancent l'horloge du hub
+  (`world.poll()`).
+- Injoignable après 2 lectures sans réponse : badge `unreachable`, **état conservé** (une lampe
+  Elgato perd volontiers le Wi-Fi tout en restant allumée ; la publier éteinte mentirait).
+- `sentKelvin` / `sentColor` republient la valeur envoyée tant que la lampe montre le même mired / la
+  même teinte-saturation : 4500 K reste 4500 K (mired 222 = 4505 K).
+- Pas de widget (le panneau lumière du cœur a toutes les commandes) ni de déclencheur (les états
+  suffisent). Deux actions de scène sur une **liste** d'appareils (`multi_select` `source: devices`,
+  accepté par le cœur 5.1+) : les Key Light vont souvent par paire. L'action n'échoue que si aucune
+  lampe n'a répondu.
+- Pas de `Ring Light` dans les fixtures publiées : `ring-light-constructed.json` est construit (dit
+  dans son `source`).

@@ -1,0 +1,32 @@
+{
+  "source": "Home Assistant tests/components/elgato/fixtures/light-strip: info.json, settings.json, state-color-temperature.json (white mode: temperature, no hue)",
+  "info": {
+    "productName": "Elgato Light Strip",
+    "hardwareBoardType": 53,
+    "firmwareBuildNumber": 192,
+    "firmwareVersion": "1.0.3",
+    "serialNumber": "EW00J0A00006",
+    "displayName": "Shelf",
+    "features": ["lights"]
+  },
+  "settings": {
+    "powerOnBehavior": 2,
+    "powerOnHue": 40.0,
+    "powerOnSaturation": 15.0,
+    "powerOnBrightness": 40,
+    "powerOnTemperature": 0,
+    "switchOnDurationMs": 150,
+    "switchOffDurationMs": 400,
+    "colorChangeDurationMs": 150
+  },
+  "lights": {
+    "numberOfLights": 1,
+    "lights": [
+      {
+        "on": 1,
+        "brightness": 21,
+        "temperature": 297
+      }
+    ]
+  }
+}

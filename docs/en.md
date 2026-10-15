@@ -1,61 +1,153 @@
-# Demo Devices Template
+# Elgato Light
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+Control your [Elgato](https://www.elgato.com) lights from Gladys, over your
+local network: Key Light, Key Light Air, Key Light Mini, Ring Light and Light
+Strip. On and off, brightness, the white from warm to cold, the colour of a
+Light Strip, the battery of a Key Light Mini, and two scene actions: make
+lights blink, and set several lights in one go for a video call. No account
+and no cloud: Gladys talks to each light directly, like the Elgato Control
+Center app does.
 
-## What you get
+> **Developed without the hardware: feedback welcome.** This integration was
+> built and tested against real answers of Elgato lights recorded by the
+> python-elgato and Home Assistant projects, and against a simulated light,
+> not against a real one. If something does not work as described, please say
+> so on the [Gladys forum](https://community.gladysassistant.com) or in the
+> [issues](https://github.com/guim31/gladys-elgato/issues).
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+## What you need
 
-## Configuration
+- Gladys Assistant 5.1.0 or later.
+- Elgato lights already set up with the **Elgato Control Center** app,
+  connected to the Wi-Fi of the same network as Gladys.
+- Nothing else: no Elgato account, no key, no internet access. The lights
+  answer on TCP port 9123 of your local network.
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+## Set up
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+1. Install the integration from the Gladys catalog. The install screen asks
+   for one permission: Gladys may look for the `_elg._tcp` service on your
+   network (mDNS), the way Control Center finds the lights.
+2. Open its **Configuration**. Nothing is required; the options are:
+   - **IP addresses of Elgato lights**: only for the lights automatic
+     discovery does not find, separated by commas (for example
+     `192.168.1.50, 192.168.1.51`). Control Center shows the address of each
+     light in its settings; your router lists it too. A name (`keylight.lan`)
+     and a port (`192.168.1.50:9123`) are accepted.
+   - **Refresh interval**: how often each light is read, from 5 to 60
+     seconds (10 by default). It is how fast Gladys sees a change made from
+     Control Center, a Stream Deck or the buttons of the light.
+   - **Language of the feature names**: English, French, German or Spanish
+     (French by default). The names of the features are given when the device
+     is added.
+3. Open the **Discover** tab: one device per light. Click **Add**, pick a
+   room, save.
+4. Missing a light? Click **Search for Elgato lights** in the Configuration
+   screen: the message under the button lists the lights found and the ones
+   that do not answer.
 
-## Actions
+A light that changes address is found again within 15 minutes, without a new
+device in Gladys: it is identified by its serial number.
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+## The Gladys devices
 
-## Scenes
+Each light becomes one Gladys device, named after the name given in Control
+Center, or after its product and the end of its serial number (for example
+_Elgato Key Light Air 0002_). Rename it as you like.
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+| Feature           | What it is                                        | Lights         |
+| ----------------- | ------------------------------------------------- | -------------- |
+| Light             | On / off                                          | Every light    |
+| Brightness        | 1 to 100 %; 0 turns the light off                 | Every light    |
+| Color temperature | The white, from 2900 K (warm) to 7000 K (cold)    | Every light    |
+| Hue               | The colour, 0 to 360°                             | Light Strip    |
+| Saturation        | 0 % (white) to 100 % (vivid colour)               | Light Strip    |
+| Color             | The colour, for the colour wheel of the dashboard | Light Strip    |
+| Battery           | Charge level, in %                                | Key Light Mini |
+| Charging          | Whether the battery is charging                   | Key Light Mini |
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+- Choosing a brightness, a white or a colour also turns the light on.
+- A Light Strip shows either a white or a colour: in white mode its hue,
+  saturation and colour are not updated, in colour mode its colour
+  temperature is not.
+- When a light no longer answers, its badge says it is unreachable and Gladys
+  keeps its last state (Elgato lights may drop off the Wi-Fi while still lit).
+
+## Configuration buttons
+
+- **Search for Elgato lights**: searches the network again now, and lists the
+  lights found.
+- **Make a light blink**: choose a light, it blinks for a few seconds. Handy
+  to tell which light is which before naming them.
 
 ## Dashboard
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+No dedicated widget: the light panel of the Gladys dashboard already has every
+control of an Elgato light (power, brightness bar, warm-to-cold slider, colour
+wheel with hue and saturation for the Light Strip). Add the device to a
+_Devices in room_ box, or to any box that shows devices.
+
+## Scenes
+
+### Triggers
+
+No trigger of its own: use the usual **device state** trigger on the features
+(the light turned on, the brightness changed, the battery below 20 %...).
+
+### Actions
+
+- **Make Elgato lights blink**: one or more lights blink for a few seconds,
+  then go back to their setting.
+- **Set Elgato lights**: turns one or more lights on with a brightness (1 to
+  100 %) and a color temperature (2900 to 7000 K), both optional, in a single
+  request per light: the light does not show its previous setting first. A
+  Light Strip in colour mode switches to white when a temperature is given.
+
+Both actions give the number of lights reached to the next actions, and fail
+only when no light answered.
+
+### Scene ideas
+
+- **Video call**: when the calendar event "Meeting" starts → **Set Elgato
+  lights** on the two Key Lights of the desk, 40 % and 5000 K; at its end, turn
+  them off.
+- **Silent doorbell**: when the doorbell rings → **Make Elgato lights blink**
+  on the office lights, for whoever wears headphones.
+- **Low battery**: when the **Battery** of the Key Light Mini goes below 15 %
+  → send a message "Charge the Key Light Mini".
+- **Evening**: at sunset → turn the Light Strip on, color temperature 2900 K,
+  brightness 30 %.
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **No light found automatically**: check that the lights and Gladys are on
+  the same network (a guest network or a separate IoT VLAN blocks the
+  discovery). Enter the IP addresses in the configuration: this works across
+  networks as long as Gladys can reach port 9123. Giving the lights a fixed
+  address in your router helps too.
+- **"not answering"**: the light is unplugged, its battery is empty, or it
+  lost the Wi-Fi. Control Center shows the same then. It comes back by itself as soon as it answers again.
+- **The white or colour in Gladys is a little different from Control
+  Center**: the lights work in mireds and in whole hue degrees; Gladys shows
+  the nearest kelvin value (to 10 K) and colour.
+- The integration logs what it finds and what does not answer: open the
+  integration logs from the Gladys interface (`LOG_LEVEL=debug` shows every
+  reading).
+
+## Limits
+
+- Changes made outside Gladys (Control Center, Stream Deck, the buttons of the
+  light) are seen at the next reading, within the refresh interval: the lights
+  send nothing by themselves. Gladys reads each light with one small local
+  request per interval (two for a Key Light Mini, which also gives its
+  battery). The local API has no quota and no terms of use; no internet
+  traffic.
+- Not offered: the power-on behaviour, the fade durations, the studio mode and
+  the energy saving of the Key Light Mini, firmware updates (use Control
+  Center), the scenes of the Light Strip Pro.
+- One Gladys device per light: the lights are not grouped.
+- Developed without a real Elgato light: what could not be checked is listed
+  in the [README](https://github.com/guim31/gladys-elgato#readme).
+
+This integration is not affiliated with Elgato or Corsair. Elgato, Key Light,
+Ring Light and Light Strip are trademarks of Corsair Memory, Inc.

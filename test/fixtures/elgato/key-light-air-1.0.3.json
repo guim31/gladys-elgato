@@ -1,0 +1,30 @@
+{
+  "source": "python-elgato tests/fixtures: info-key-light-air.json (no MAC, no Wi-Fi info, empty display name), settings-keylight.json, state-temperature.json",
+  "info": {
+    "productName": "Elgato Key Light Air",
+    "hardwareBoardType": 200,
+    "firmwareBuildNumber": 195,
+    "firmwareVersion": "1.0.3",
+    "serialNumber": "CW00J0A00002",
+    "displayName": "",
+    "features": ["lights"]
+  },
+  "settings": {
+    "powerOnBehavior": 1,
+    "powerOnBrightness": 20,
+    "powerOnTemperature": 213,
+    "switchOnDurationMs": 100,
+    "switchOffDurationMs": 300,
+    "colorChangeDurationMs": 100
+  },
+  "lights": {
+    "numberOfLights": 1,
+    "lights": [
+      {
+        "on": 0,
+        "brightness": 45,
+        "temperature": 200
+      }
+    ]
+  }
+}
